@@ -3,6 +3,8 @@ package org.ambrose.bouncer
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Component
+import java.io.InputStream
+import java.io.PrintWriter
 import java.net.ServerSocket
 
 @Component
@@ -22,15 +24,21 @@ class ClientController(private val applicationProperties: ApplicationProperties,
             val server = ServerSocket(tcpport)
             while (true) {
                 val socket = server.accept()
-                println("heard something")
+                println("got new connection")
                 val bytes = socket.getInputStream().readAllBytes()
-                val response = restTemplate.postForObject(serverurl, bytes, ByteArray::class.java)
+                println("got ${String(bytes)} from origin")
+                val response = restTemplate.postForObject(serverurl, bytes, String::class.java)
+                println("got $response from server")
                 socket.getOutputStream().write(response)
                 socket.close()
             }
 
         }, "bouncer-client").apply { start() }
 
+    }
+
+    private fun InputStream.readAllNow(): ByteArray {
+        this.read()
     }
 
 }

@@ -9,6 +9,7 @@ class TestTarget {
     @Test
     fun test() {
         ServerSocket(10101).accept().also {
+            println("target received connection")
             it.getInputStream().readAllBytes().also { println(String(it)) }
             it.getOutputStream().write("goodbye".toByteArray())
             it.close()
